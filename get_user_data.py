@@ -13,7 +13,7 @@ Make sure to set the AD credentials in ./config.py. Copy the Excel file you want
 """
 
 from ldap3 import Server, Connection, ALL, NTLM, ALL_ATTRIBUTES
-from config import PW, AD_PW, AD_USER
+from config import AD_PW, AD_USER
 import openpyxl
 import json
 
@@ -33,6 +33,7 @@ def get_data(reportfile):
         for i in range(1, sheet.max_row+1):
             code = sheet.cell(row=i, column=1).value
             description = sheet.cell(row=i, column=2).value
+            #  use the "sub-heading"-rows in the decription column to set the type of budget 
             if description == 'Snellius VU CPU-compute 2024':
                 budget_type = 'CPU'
             elif  description == 'Snellius VU GPU-compute 2024':
@@ -45,9 +46,13 @@ def get_data(reportfile):
             usage = sheet.cell(row=i, column=13).value
             if '@' in email and code.startswith('2307090'): # only interested in the "totals" rows with an email address 
                 if email not in data:
-                    if email.endswith(("vu.nl", "acta.nl")): # VU users, we could add a lookup on name for the other addresses later
+                    data[email] = {
+                        'account': account
+                    }
+                    if email.endswith(("vu.nl", "acta.nl")): # VU users
+                        # we could try to add a lookup by first/last name for the other addresses later
                         print(email)
-                        conn.search('dc=vu,dc=local', f'(&(objectclass=person)(mail={email}))', attributes=['department','company','eduPersonAffiliation','title','displayName'])
+                        conn.search('dc=vu,dc=local', f'(&(objectclass=person)(|(proxyaddresses=SMTP:{email})(proxyaddresses=smtp:{email})))', attributes=['department','company','eduPersonAffiliation','title','displayName'])
                         try: 
                             entry = conn.entries[0]
                             data[email] = {
@@ -59,13 +64,7 @@ def get_data(reportfile):
                                 'account': account
                             }
                         except IndexError: # not found in AD
-                            data[email] = {
-                                'account': account
-                            }
-                    else:
-                        data[email] = {
-                            'account': account
-                    }
+                            pass
                 if budget_type in data[email]:
                         data[email][budget_type]['budget'] += budget
                         data[email][budget_type]['usage'] += usage
