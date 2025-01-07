@@ -13,24 +13,45 @@ Make sure to set the AD credentials in ./config.py. Copy the Excel file you want
 """
 
 from ldap3 import Server, Connection, ALL, NTLM, ALL_ATTRIBUTES
-from config import AD_PW, AD_USER
+from config import AD_PW, AD_USER, AD_SERVER, REPORT_PATH
 import openpyxl
 import json
 
+def ad_lookup(email):
+    # we could try to add a lookup by first/last name for the other addresses later
+    print(email)
+    conn.search('dc=vu,dc=local', f'(&(objectclass=person)(|(proxyaddresses=SMTP:{email})(proxyaddresses=smtp:{email})))',
+        attributes=['department','company','eduPersonAffiliation','title','displayName'])
+    data={}
+    try: 
+        entry = conn.entries[0]
+        data = {
+            'department': "|".join(entry.department),
+            'company': "|".join(entry.company),
+            'eduPersonAffiliation': "|".join(entry.eduPersonAffiliation),
+            'title':  "|".join(entry.title),
+            'displayName':  "|".join(entry.displayName),
+            'account': account
+        }
+    except IndexError: # not found in AD
+        pass
+    return data
+
 def get_data(reportfile):
     reportdate = reportfile.split('.')[1]
-    workbook = openpyxl.load_workbook(f"data/{reportfile}")
+    workbook = openpyxl.load_workbook(f"{reportfile}")
     sheet = workbook.active
 
     data = {}
     filename = f'snellius_usersAD-{reportdate}.json'
-    datafile = f'data/{filename}'
+    datafile = f'{REPORT_PATH}/{filename}'
     data = {}
 
-    server = Server('prodc001b.vu.local', use_ssl=True, get_info=ALL)
+    server = Server(AD_SERVER, use_ssl=True, get_info=ALL)
 
     with Connection(server, AD_USER, AD_PW, auto_bind=True) as conn:
         for i in range(1, sheet.max_row+1):
+            print(i)
             code = sheet.cell(row=i, column=1).value
             description = sheet.cell(row=i, column=2).value
             #  use the "sub-heading"-rows in the decription column to set the type of budget 
@@ -40,31 +61,18 @@ def get_data(reportfile):
                 budget_type = 'GPU'
             elif description == 'Snellius VU project storage 2024':
                 budget_type = 'projectspace'
+            # TODO read the column headers, they tend to change
             account = sheet.cell(row=i, column=5).value
-            email = sheet.cell(row=i, column=8).value
-            budget = sheet.cell(row=i, column=12).value
-            usage = sheet.cell(row=i, column=13).value
+            email = sheet.cell(row=i, column=9).value
+            budget = sheet.cell(row=i, column=13).value
+            usage = sheet.cell(row=i, column=14).value
             if '@' in email and code.startswith('2307090'): # only interested in the "totals" rows with an email address 
                 if email not in data:
                     data[email] = {
                         'account': account
                     }
                     if email.endswith(("vu.nl", "acta.nl")): # VU users
-                        # we could try to add a lookup by first/last name for the other addresses later
-                        print(email)
-                        conn.search('dc=vu,dc=local', f'(&(objectclass=person)(|(proxyaddresses=SMTP:{email})(proxyaddresses=smtp:{email})))', attributes=['department','company','eduPersonAffiliation','title','displayName'])
-                        try: 
-                            entry = conn.entries[0]
-                            data[email] = {
-                                'department': "|".join(entry.department),
-                                'company': "|".join(entry.company),
-                                'eduPersonAffiliation': "|".join(entry.eduPersonAffiliation),
-                                'title':  "|".join(entry.title),
-                                'displayName':  "|".join(entry.displayName),
-                                'account': account
-                            }
-                        except IndexError: # not found in AD
-                            pass
+                        data[email]=ad_lookup(email)
                 if budget_type in data[email]:
                         data[email][budget_type]['budget'] += budget
                         data[email][budget_type]['usage'] += usage
@@ -81,4 +89,4 @@ def get_data(reportfile):
 
 
 if __name__ == '__main__':
-    get_data(reportfile = "2307090_24.20240905.xlsx")
+    get_data(reportfile = f"{REPORT_PATH}/2307090_24.20250106.xlsx")
