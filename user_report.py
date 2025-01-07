@@ -15,6 +15,7 @@ Create a json with ./get_user_data.py first.
 import openpyxl
 from datetime import datetime
 import json
+from config import REPORT_PATH
 
 def create_excel(datafile):
     wb = openpyxl.Workbook()
@@ -54,4 +55,4 @@ def create_excel(datafile):
 
 
 if __name__ == '__main__':
-    create_excel("data/snellius_usersAD-20240905.json")
+    create_excel(f"{REPORT_PATH}/snellius_usersAD-20250106.json")
