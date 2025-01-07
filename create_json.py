@@ -18,7 +18,7 @@ import json
 
 def get_headings(sheet):
     headings = []
-    for n in range(1, sheet.max_column):
+    for n in range(1, sheet.max_column + 1):
         headings.append(sheet.cell(1, column=n).value)
     print(headings)
     return headings
@@ -66,9 +66,24 @@ def create_json_from_report(reportfile, ad_lookup=False):
                     data[account]["email"] = email
             if budget_type in data[account]:
                 data[account][budget_type]["budget"] += budget
-                data[account][budget_type]["usage"] += usage
+                data[account][budget_type]["usage"]["total"] += usage
             else:
-                data[account][budget_type] = {"budget": budget, "usage": usage}
+                data[account][budget_type] = {"budget": budget, "usage": { "total": usage}}
+            # add usage per year using the per month totals
+            if budget_type!="projectspace":
+                for j in range(col_trend + 1 , sheet.max_column): 
+                    # IGNORES THE LAST MONTH! This contains only info on the first few days. 
+                    # In january 2026 we can add the 2025 totals of the July 2025 report to the 2025 totals of the January 2026 report for a full year report.
+                    datestr = headings[j-1]
+                    year = datestr[0:4]
+                    if sheet.cell(row=i, column=j).value=="":
+                        month_usage=0
+                    else: 
+                        month_usage= sheet.cell(row=i, column=j).value
+                    if year in data[account][budget_type]:
+                        data[account][budget_type][year] += month_usage
+                    else:
+                        data[account][budget_type][year] = month_usage
 
     # dump the data in a json for now
     with open(datafile, "w") as fp:
