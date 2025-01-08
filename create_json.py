@@ -39,8 +39,6 @@ def create_json_from_report(reportfile, ad_lookup=False):
     col_trend = headings.index("trend")+1 # should be the last column before the monthly usage columns
 
     data = {}
-    datafile = f"{REPORT_PATH}/{reportfile.replace('.xlsx','.json')}"
-    data = {}
     
     for i in range(1, sheet.max_row + 1):
         print(i)
@@ -70,22 +68,24 @@ def create_json_from_report(reportfile, ad_lookup=False):
             else:
                 data[account][budget_type] = {"budget": budget, "usage": { "total": usage}}
             # add usage per year using the per month totals
-            if budget_type!="projectspace":
-                for j in range(col_trend + 1 , sheet.max_column): 
-                    # IGNORES THE LAST MONTH! This contains only info on the first few days. 
-                    # In january 2026 we can add the 2025 totals of the July 2025 report to the 2025 totals of the January 2026 report for a full year report.
-                    datestr = headings[j-1]
-                    year = datestr[0:4]
-                    if sheet.cell(row=i, column=j).value=="":
-                        month_usage=0
-                    else: 
-                        month_usage= sheet.cell(row=i, column=j).value
-                    if year in data[account][budget_type]:
-                        data[account][budget_type][year] += month_usage
-                    else:
-                        data[account][budget_type][year] = month_usage
+            for j in range(col_trend + 1 , sheet.max_column): 
+                # IGNORES THE LAST MONTH! This contains only info on the first few days. 
+                # In january 2026 we can add the 2025 totals of the July 2025 report to the 2025 totals of the January 2026 report for a full year report.
+                # Project space: months 5TB, 3 months 10TB = 40TBmonth?? Then if 1TB for a year = €480.0 costs are 40*(480/12)=1600 
+                datestr = headings[j-1]
+                year = datestr[0:4]
+                if sheet.cell(row=i, column=j).value=="":
+                    month_usage=0
+                else: 
+                    month_usage= sheet.cell(row=i, column=j).value
+                if year in data[account][budget_type]:
+                    data[account][budget_type][year] += month_usage
+                else:
+                    data[account][budget_type][year] = month_usage
+
 
     # dump the data in a json for now
+    datafile = f"{REPORT_PATH}/{reportfile.replace('.xlsx','.json')}"
     with open(datafile, "w") as fp:
         json.dump(data, fp)
     return datafile
