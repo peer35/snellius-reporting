@@ -16,43 +16,75 @@ import openpyxl
 from datetime import datetime
 import json
 from config import REPORT_PATH
+from create_json import create_json_from_report
+from ad_lookup import ad_lookup
 
-def create_excel(datafile):
+
+def create_excel(datafile, years):
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = 'snellius_usage'
-    
+    ws.title = "snellius_usage"
+
     with open(f"{datafile}", "r+") as fp:
         data = json.load(fp)
 
     workbook = openpyxl.Workbook()
     sheet = workbook.active
+    sheet.cell(row=1, column=1).value = "email"
+    sheet.cell(row=1, column=2).value = "account"
+    sheet.cell(row=1, column=3).value = "company"
+    sheet.cell(row=1, column=4).value = "department"
+    sheet.cell(row=1, column=5).value = "eduPersonAffiliation"
+    sheet.cell(row=1, column=6).value = "title"
+    sheet.cell(row=1, column=7).value = "displayName"
+    sheet.cell(row=1, column=8).value = "cpu budget"
+    sheet.cell(row=1, column=9).value = "cpu usage total"
+    sheet.cell(row=1, column=10).value = "gpu budget"
+    sheet.cell(row=1, column=11).value = "gpu usage total"
+    sheet.cell(row=1, column=12).value = "projectspace usage"
 
-    sheet.append(['email', 'account', 'company', 'department', 'eduPersonAffiliation', 'title', 'displayName', 'cpu budget', 'cpu usage', 'gpu budget', 'gpu usage', 'projectspace budget', 'projectspace usage'])
-    i = 2
-    for email, userdata in data.items():
-        projectspace = userdata.get('projectspace', {})
-        CPU = userdata.get('CPU', {})
-        GPU = userdata.get('GPU', {})
-        sheet.append([
-            email,
-            userdata['account'],
-            userdata.get('company', ''),
-            userdata.get('department', ''),
-            userdata.get('eduPersonAffiliation', ''),
-            userdata.get('title', ''),
-            userdata.get('displayName', ''),
-            CPU.get('budget', 0),
-            round(CPU.get('usage', 0)),
-            GPU.get('budget', 0),
-            round(GPU.get('usage', 0)),
-            projectspace.get('budget', 0),
-            projectspace.get('usage', 0)
-        ])
-        i += 1
+    c = 13
+    for year in years:
+        sheet.cell(row=1, column=c).value = f"{year} cpu"
+        sheet.cell(row=1, column=c + 1).value = f"{year} gpu"
+        sheet.cell(row=1, column=c + 2).value = f"{year} projectspace"
+        c += 3
+    r = 2
+    for account, userdata in data.items():
+        projectspace = userdata.get("projectspace", {})
+        CPU = userdata.get("CPU", {})
+        GPU = userdata.get("GPU", {})
+        projecspace = userdata.get("projectspace", {})
+        addata = userdata.get("AD", {})
 
-    workbook.save(filename = datafile.replace('.json', '.xlsx'))
+        sheet.cell(row=r, column=1).value = userdata.get("email", "")
+        sheet.cell(row=r, column=2).value = account
+        sheet.cell(row=r, column=3).value = addata.get("company", "")
+        sheet.cell(row=r, column=4).value = addata.get("department", "")
+        sheet.cell(row=r, column=5).value = addata.get("eduPersonAffiliation", "")
+        sheet.cell(row=r, column=6).value = addata.get("title", "")
+        sheet.cell(row=r, column=7).value = addata.get("displayName", "")
+        sheet.cell(row=r, column=8).value = CPU.get("budget", 0)
+        sheet.cell(row=r, column=9).value = round(CPU.get("total_usage", 0))
+        sheet.cell(row=r, column=10).value = GPU.get("budget", 0)
+        sheet.cell(row=r, column=11).value = round(GPU.get("total_usage", 0))
+        sheet.cell(row=r, column=12).value = projectspace.get("total_usage", 0)
+        c = 13
+        for year in years:
+            sheet.cell(row=r, column=c).value = round(CPU.get(year, 0), 0)
+            sheet.cell(row=r, column=c + 1).value = round(GPU.get(year, 0), 0)
+            sheet.cell(row=r, column=c + 2).value = round(projectspace.get(year, 0), 0)
+            c += 3
+        r += 1
+    filename = datafile.replace(".json", ".xlsx")
+    workbook.save(filename)
+    return filename
 
 
-if __name__ == '__main__':
-    create_excel(f"{REPORT_PATH}/snellius_usersAD-20250106.json")
+if __name__ == "__main__":
+    datafile, years = create_json_from_report(
+        reportfile="2307090_23.20240705.xlsx", ignorecol=0
+    )
+    ad_datafile = ad_lookup(datafile, lookup=False)
+    filename = create_excel(ad_datafile, years)
+    print(filename)
