@@ -1,17 +1,3 @@
-"""
-Title: Read a Snellius Excel report file and enrich with AD info
-Author: Peter Vos
-version: 0.9
-
-Usage (Local): python3 get_user_data.py
-
-Requires: openpyxl (pip install openpyxl), ldap3 (pip install ldap3)
-
-(C) Peter J.M. Vos, VU Amsterdam, 2024. Licenced for use under the BSD 3 clause
-
-Make sure to set the AD credentials and the path to the synced reports in ./config.py
-"""
-
 from config import REPORT_PATH
 import openpyxl
 import json
@@ -86,7 +72,7 @@ def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
                     data[account][budget_type][year] = month_usage
 
     # dump the data in a json for now
-    datafile = f"{REPORT_PATH}/{reportfile.replace('.xlsx','.json')}"
+    datafile = f"{REPORT_PATH}/processed/{reportfile.replace('.xlsx','.json')}"
     with open(datafile, "w") as fp:
         json.dump(data, fp)
     return datafile, years

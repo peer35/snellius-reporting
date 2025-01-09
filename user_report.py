@@ -1,15 +1,13 @@
 """
-Title: Read a Snellius data file created by ./get_user_data.py and convert it into an Excel file
+Title: Converts a Snellius excel report to json, looks up email addresses in the AD and outputs to a per-user xlsx file
 Author: Peter Vos
-version: 0.8-alpha
+version: 1.0
 
 Usage (Local): python3 user_report.py
 
 Requires: openpyxl (pip install openpyxl)
 
-(C) Peter J.M. Vos, VU Amsterdam, 2024. Licenced for use under the BSD 3 clause
-
-Create a json with ./get_user_data.py first.
+(C) Peter J.M. Vos, VU Amsterdam, 2025. Licenced for use under the BSD 3 clause
 """
 
 import openpyxl
@@ -91,7 +89,7 @@ if __name__ == "__main__":
         reportfile=reportfile, ignorecol=int(ignorecols)
     )
     print(f'Created {datafile}')
-    ad_datafile = ad_lookup(datafile, lookup=False)
+    ad_datafile = ad_lookup(datafile, lookup=True)
     print(f'Added AD info in {ad_datafile}')
     filename = create_excel(ad_datafile, years)
     print(f'Output written to {filename}')
