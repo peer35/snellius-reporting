@@ -6,6 +6,17 @@ USERDATA_FILE = "data/userdata.json"  # store all found userdata here.
 
 
 def ad_lookup(datafile, lookup=True):
+    """
+    Performs LDAP lookups for user data using the provided configuration.
+
+    Args:
+        datafile (str): The file path where json-converted snellius report is stored.
+        lookup (bool, optional): Whether to perform actual LDAP lookups or just retrieve existing data. Defaults to True.
+
+    Returns:
+        list: A list of dictionaries containing user data.
+    """
+
     with open(datafile, "r+") as fp:
         data = json.load(fp)
     print(f"Using {USERDATA_FILE} to store found accounts.")

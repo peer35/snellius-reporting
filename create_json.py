@@ -4,6 +4,15 @@ import json
 
 
 def get_headings(sheet):
+    """
+    Extracts headings from a given sheet in an Excel workbook.
+    
+    Args:
+        sheet (openpyxlWorksheet): The sheet to extract headings from.
+        
+    Returns:
+        list: A list of heading values.
+    """
     headings = []
     for n in range(1, sheet.max_column + 1):
         headings.append(sheet.cell(1, column=n).value)
@@ -11,6 +20,19 @@ def get_headings(sheet):
 
 
 def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
+    """
+    Creates a JSON file from the given report Excel file.
+    
+    Args:
+        reportfile (str): The path to the Excel report file.
+        ad_lookup (bool): Whether to perform an AD lookup. Defaults to False.
+        ignorecol (int): The column number to ignore when processing data. Defaults to 1.
+        
+    Returns:
+        dict: Filename of json file containing the processed data.
+    """
+    # Code remains unchanged
+
     reportdate = reportfile.split(".")[1]
     workbook = openpyxl.load_workbook(f"{REPORT_PATH}/{reportfile}")
     sheet = workbook.active

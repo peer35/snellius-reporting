@@ -19,6 +19,32 @@ from ad_lookup import ad_lookup
 
 
 def create_excel(datafile, years):
+    """
+    Converts a json-converted Snellius report to excel, outputs a per-user xlsx file.
+
+    Parameters
+    ----------
+    datafile : str
+        Path to the input json file.
+    years : list of int
+        List of years for which the reports should be generated.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    This function assumes that the input json file was created by the create_json.py and the ad_lookup.py scripts.
+    
+    The output will be a per-user xlsx file.
+    
+    Example
+    -------
+    >>> create_excel('input.xlsx', [2022, 2023])
+    """
+
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "snellius_usage"
