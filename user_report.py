@@ -82,13 +82,13 @@ def create_excel(datafile, years):
 
 
 if __name__ == "__main__":
-    default = "2307090_23.20240705.xlsx"
-    reportfile = input(f"Which xlsx report do you want to proces [{default}]? (file must be in path {REPORT_PATH})") or default
-    default = 1
-    ignorecols = input(f"How many of the rightmost columns do you want to ignore [{default}]? (eg choose 1 if the last columns contain info on just the first day of the current month)") or default
+    defreport = "2307090_23.20240705.xlsx"
+    reportfile = input(f"Which xlsx report do you want to proces [{defreport}]? (file must be in path {REPORT_PATH})") or defreport
+    defcols = "1"
+    ignorecols = input(f"How many of the rightmost columns do you want to ignore [{defcols}]? (eg choose 1 if the last columns contain info on just the first day of the current month)") or defcols
     print(f"Start processing {REPORT_PATH}/{reportfile}, ignore last {ignorecols} columns.")
     datafile, years = create_json_from_report(
-        reportfile=reportfile, ignorecol=ignorecols
+        reportfile=reportfile, ignorecol=int(ignorecols)
     )
     print(f'Created {datafile}')
     ad_datafile = ad_lookup(datafile, lookup=False)
