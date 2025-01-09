@@ -107,7 +107,7 @@ def create_excel(datafile, years):
 
 if __name__ == "__main__":
     defreport = "2307090_23.20240705.xlsx"
-    reportfile = input(f"Which xlsx report do you want to proces [{defreport}]? (file must be in path {REPORT_PATH})") or defreport
+    reportfile = input(f"Which xlsx report do you want to process [{defreport}]? (file must be in path {REPORT_PATH})") or defreport
     defcols = "1"
     ignorecols = input(f"How many of the rightmost columns do you want to ignore [{defcols}]? (eg choose 1 if the last columns contain info on just the first day of the current month)") or defcols
     print(f"Start processing {REPORT_PATH}/{reportfile}, ignore last {ignorecols} columns.")
