@@ -21,7 +21,6 @@ def get_headings(sheet):
     headings = []
     for n in range(1, sheet.max_column + 1):
         headings.append(sheet.cell(1, column=n).value)
-    print(headings)
     return headings
 
 
@@ -44,7 +43,6 @@ def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
     data = {}
     years = []  # years found in excel report
     for i in range(1, sheet.max_row + 1):
-        print(i)
         code = sheet.cell(row=i, column=1).value
         description = sheet.cell(row=i, column=2).value
         #  use the "sub-heading"-rows in the decription column to set the type of budget
@@ -59,7 +57,6 @@ def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
             if account not in data:
                 data[account] = {}
             budget = sheet.cell(row=i, column=col_budget).value
-            print(account, budget)
             usage = sheet.cell(row=i, column=col_usage).value
             if col_email:
                 email = sheet.cell(row=i, column=col_email).value

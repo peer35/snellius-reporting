@@ -8,6 +8,7 @@ USERDATA_FILE = "data/userdata.json"  # store all found userdata here.
 def ad_lookup(datafile, lookup=True):
     with open(datafile, "r+") as fp:
         data = json.load(fp)
+    print(f"Using {USERDATA_FILE} to store found accounts.")
     with open(f"{USERDATA_FILE}", "r+") as fp:
         userdata = json.load(fp)
     if lookup:
@@ -16,7 +17,6 @@ def ad_lookup(datafile, lookup=True):
     for account, reportdata in data.items():
         email = reportdata.get("email", "")
         # we could try to add a lookup by first/last name for the other addresses later
-        print(email)
         if email.endswith(("vu.nl", "acta.nl")) and lookup:  # VU users
             conn.search(
                 "dc=vu,dc=local",
