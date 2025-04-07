@@ -1,6 +1,7 @@
 from ldap3 import Server, Connection, ALL, NTLM, ALL_ATTRIBUTES
 from config import AD_PW, AD_USER, AD_SERVER, REPORT_PATH
 import json
+from datetime import datetime
 
 USERDATA_FILE = "data/userdata.json"  # store all found userdata here.
 
@@ -49,6 +50,7 @@ def ad_lookup(datafile, lookup=True):
                     "title": "|".join(entry.title),
                     "displayName": "|".join(entry.displayName),
                     "account": account,
+                    "retrieved": datetime.today().strftime('%Y-%m-%d')
                 }
                 userdata[email] = data[account]["AD"]
             except IndexError:  # not found in AD
@@ -76,5 +78,6 @@ def ad_lookup(datafile, lookup=True):
 
 
 if __name__ == "__main__":
+    # to test run the script directly
     datafile = f"{REPORT_PATH}/2307090_24.20250106.json"
     ad_datafile = ad_lookup(datafile)
