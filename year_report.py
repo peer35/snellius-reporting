@@ -48,15 +48,18 @@ for datafile in datafiles:
             projectspace = userdata.get("projectspace", {})
             CPU = userdata.get("CPU", {})
             GPU = userdata.get("GPU", {})
+            PS = userdata.get("projectspace",{})
 
             for entry in CPU:   
                 if entry in datestrings:
-                    output[account]["CPU_total"] = output[account]["CPU_total"] + CPU[entry] 
+                    output[account]["CPU_total"] += CPU[entry] 
             for entry in GPU:
                 if entry in datestrings:
-                    output[account]["GPU_total"] = output[account]["GPU_total"] + GPU[entry]
-            ps = userdata.get("projectspace",{})
-            output[account]["project_space"] = ps.get("budget", 0)
+                    output[account]["GPU_total"] += GPU[entry]
+            for entry in PS:
+                if entry in datestrings:
+                    output[account]["project_space"] += PS[entry]
+
 
 with open("data/snellius_usage2025.json", "w") as fp:
     json.dump(output, fp)
