@@ -115,7 +115,7 @@ if __name__ == "__main__":
         reportfile=reportfile, ignorecol=int(ignorecols)
     )
     print(f'Created {datafile}')
-    ad_datafile = ad_lookup(datafile, lookup=False)
+    ad_datafile = ad_lookup(datafile, lookup=True)
     print(f'Added AD info in {ad_datafile}')
     filename = create_excel(ad_datafile, years)
     print(f'Output written to {filename}')

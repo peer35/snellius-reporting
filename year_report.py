@@ -1,11 +1,11 @@
 import openpyxl
 import json
+from datetime import datetime
 
 # Months to calculate over
 datestrings = ["2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10"]  
 # Input data: e.g. july report over previous period + november report
-#datafiles = ["data/2307090_24.20250707_AD.json","data/2307090_25.20251006_AD.json"]
-datafiles = ["data/2307090_25.20251006_AD.json"]
+datafiles = ["data/2307090_24.20250707_AD.json","data/2307090_25.20251006_AD.json"]
 
 workbook = openpyxl.Workbook()
 sheet = workbook.active
@@ -71,6 +71,9 @@ for account, reportdata in output.items():
     sheet.cell(row=row, column=6).value = reportdata["GPU_total"]
     sheet.cell(row=row, column=7).value = reportdata["project_space"]
     row += 1
+
+sheet.cell(row=1,column=10).value=f'Generated on {datetime.now().strftime("%I:%M%p on %B %d, %Y")} using {" & ".join(datafiles)} as input'
+sheet.cell(row=2,column=10).value=f'Total over months {", ".join(datestrings)}'
 
 print(accounts)
 workbook.save("data/snellius_usage2025.xlsx")
