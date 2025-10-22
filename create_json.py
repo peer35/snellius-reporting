@@ -81,6 +81,7 @@ def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
                 # In january 2026 we can add the 2025 totals of the July 2025 report to the 2025 totals of the January 2026 report for a full year report.
                 # Project space: months 5TB, 3 months 10TB = 40TBmonth?? Then if 1TB for a year = €480.0 costs are 40*(480/12)=1600
                 datestr = headings[j - 1]
+                print(f'***** {datestr}')
                 year = datestr[0:4]
                 if year not in years:
                     years.append(year)
@@ -88,17 +89,21 @@ def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
                     month_usage = 0
                 else:
                     month_usage = sheet.cell(row=i, column=j).value
+                print(account,datestr,year,month_usage, budget_type)
                 if year in data[account][budget_type]:
                     data[account][budget_type][year] += month_usage
                 else:
-                    data[account][budget_type][year] = month_usage
+                    data[account][budget_type][year] = month_usage   
+                data[account][budget_type][datestr] = month_usage
 
     # dump the data in a json for now
-    datafile = f"{REPORT_PATH}/processed/{reportfile.replace('.xlsx','.json')}"
+    #datafile = f"{REPORT_PATH}/processed/{reportfile.replace('.xlsx','.json')}"
+    datafile = f"data/{reportfile.replace('.xlsx','.json')}"
+    print(datafile)
     with open(datafile, "w") as fp:
         json.dump(data, fp)
     return datafile, years
 
 
 if __name__ == "__main__":
-    datafile = create_json_from_report(reportfile="2307090_24.20250106.xlsx")
+    datafile, years = create_json_from_report(reportfile="2307090_25.20251006.xlsx")

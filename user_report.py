@@ -106,7 +106,7 @@ def create_excel(datafile, years):
 
 
 if __name__ == "__main__":
-    defreport = "2307090_23.20240705.xlsx"
+    defreport = "2307090_25.20251006.xlsx"
     reportfile = input(f"Which xlsx report do you want to process [{defreport}]? (file must be in path {REPORT_PATH})") or defreport
     defcols = "1"
     ignorecols = input(f"How many of the rightmost columns do you want to ignore [{defcols}]? (eg choose 1 if the last columns contain info on just the first day of the current month)") or defcols
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         reportfile=reportfile, ignorecol=int(ignorecols)
     )
     print(f'Created {datafile}')
-    ad_datafile = ad_lookup(datafile, lookup=True)
+    ad_datafile = ad_lookup(datafile, lookup=False)
     print(f'Added AD info in {ad_datafile}')
     filename = create_excel(ad_datafile, years)
     print(f'Output written to {filename}')
