@@ -2,6 +2,7 @@ from ldap3 import Server, Connection, ALL, NTLM, ALL_ATTRIBUTES
 from config import AD_PW, AD_USER, AD_SERVER, REPORT_PATH
 import json
 from datetime import datetime
+import shutil
 
 USERDATA_FILE = "data/userdata.json"  # store all found userdata here.
 
@@ -21,6 +22,8 @@ def ad_lookup(datafile, lookup=True):
     with open(datafile, "r+") as fp:
         data = json.load(fp)
     print(f"Using {USERDATA_FILE} to store found accounts.")
+    # Create a backup copy first
+    shutil.copyfile(USERDATA_FILE, USERDATA_FILE.replace(".json",f"-{datetime.today().strftime('%Y%m%d')}.json"))
     with open(f"{USERDATA_FILE}", "r+") as fp:
         userdata = json.load(fp)
     if lookup:
