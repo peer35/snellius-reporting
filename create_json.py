@@ -61,7 +61,8 @@ def create_json_from_report(reportfile, ad_lookup=False, ignorecol=1):
         elif description.startswith("Snellius VU project storage "):
             budget_type = "projectspace"
         account = sheet.cell(row=i, column=col_account).value
-        if account.startswith("snel-vusr") and code.startswith("2307090"):
+        #if account.startswith("snel-vusr") and code.startswith("2307090"):
+        if account.startswith("snel-") and code.startswith("2307090"):
             if account not in data:
                 data[account] = {}
             budget = sheet.cell(row=i, column=col_budget).value
